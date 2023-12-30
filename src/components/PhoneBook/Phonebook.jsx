@@ -1,25 +1,31 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styles from "./Phonebook.module.css";
 import ContactForm from "./Refactor/ContactForm";
 import Filter from "./Refactor/Filter";
 import ContactList from "./Refactor/ContactList";
 import { nanoid } from "nanoid";
+import { saveContact, deleteContact, updateFilter } from "../../Redux/contactSlice"; 
 
 const Phonebook = () => {
-  const [contacts, setContacts] = useState([]);
-  const [filter, setFilter] = useState("");
+  const dispatch = useDispatch();
+  const contacts = useSelector((state) => state.contacts.contacts);
+  const filter = useSelector((state) => state.contacts.filter);
+
   const [name, setName] = useState("");
   const [number, setNumber] = useState("");
   const [showDeleted] = useState(false);
 
   useEffect(() => {
-    const storedContacts = localStorage.getItem("contacts");
+    const storedContacts = JSON.parse(localStorage.getItem("contacts"));
     if (storedContacts) {
-      setContacts(JSON.parse(storedContacts));
+      dispatch(saveContact(storedContacts));
     }
-  }, []);
+  }, [dispatch]);
+  
 
   useEffect(() => {
+    localStorage.clear();
     localStorage.setItem("contacts", JSON.stringify(contacts));
   }, [contacts]);
 
@@ -34,32 +40,30 @@ const Phonebook = () => {
 
   const submit = (e) => {
     e.preventDefault();
-    if (contacts.some((contact) => contact.name.toLowerCase() === name.toLowerCase())) {
-      alert(`${name} is already in contacts`);
-      return;
-    }
     const newContact = {
       id: nanoid(),
       name: name,
       number: number,
     };
 
-    setContacts((prevContacts) => [...prevContacts, newContact]);
+    dispatch(saveContact(newContact));
     setName("");
     setNumber("");
   };
 
-  const deleteContact = (id) => {
-    setContacts((prevContacts) => prevContacts.filter((contact) => contact.id !== id));
+  const handleDeleteContact = (id) => {
+    dispatch(deleteContact(id));
   };
 
   const handleFilterChange = (value) => {
-    setFilter(value);
+    dispatch(updateFilter(value));
   };
 
   const filteredContacts = showDeleted
     ? contacts
-    : contacts.filter((contact) => contact.name.toLowerCase().includes(filter.toLowerCase()));
+    : contacts.filter(
+        (contact) => contact.name && contact.name.toLowerCase().includes(filter.toLowerCase())
+      );
 
   return (
     <div className={styles.container}>
@@ -68,7 +72,7 @@ const Phonebook = () => {
 
       <h2>Contacts</h2>
       <Filter value={filter} onChange={handleFilterChange} />
-      <ContactList contacts={filteredContacts} deleteContact={deleteContact} />
+      <ContactList contacts={filteredContacts} deleteContact={handleDeleteContact} />
     </div>
   );
 };

@@ -5,7 +5,7 @@ import ContactForm from "./Refactor/ContactForm";
 import Filter from "./Refactor/Filter";
 import ContactList from "./Refactor/ContactList";
 import { nanoid } from "nanoid";
-import { saveContact, deleteContact, updateFilter } from "../../Redux/contactSlice"; 
+import { saveContact, deleteContact, updateFilter, clearContacts } from "../../Redux/contactSlice"; 
 
 const Phonebook = () => {
   const dispatch = useDispatch();
@@ -59,6 +59,9 @@ const Phonebook = () => {
     dispatch(updateFilter(value));
   };
 
+  const handleClearContacts = () => {
+    dispatch(clearContacts());
+  };
   const filteredContacts = showDeleted
     ? contacts
     : contacts.filter(
@@ -72,7 +75,7 @@ const Phonebook = () => {
 
       <h2>Contacts</h2>
       <Filter value={filter} onChange={handleFilterChange} />
-      <ContactList contacts={filteredContacts} deleteContact={handleDeleteContact} />
+      <ContactList contacts={filteredContacts} deleteContact={handleDeleteContact} clearContacts={handleClearContacts}/>
     </div>
   );
 };

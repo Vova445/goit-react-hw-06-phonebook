@@ -40,6 +40,10 @@ const Phonebook = () => {
 
   const submit = (e) => {
     e.preventDefault();
+    if (contacts.some(contact => contact.name.toLowerCase() === name.toLowerCase())) {
+      alert(`${name} is already in contacts`);
+      return;
+    }
     const newContact = {
       id: nanoid(),
       name: name,

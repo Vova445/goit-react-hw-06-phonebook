@@ -9,7 +9,10 @@ const contactsSlice = createSlice({
   reducers: {
     saveContact: (state, action) => {
       const newContacts = Array.isArray(action.payload) ? action.payload : [action.payload];
-      const nonEmptyContacts = newContacts.filter(contact => contact.name.trim() !== '' && contact.number.trim() !== '');
+      const nonEmptyContacts = newContacts
+        .filter(contact => contact && contact.name && contact.number)
+        .filter(contact => contact.name.trim() !== '' && contact.number.trim() !== '');
+
       if (nonEmptyContacts.length > 0) {
         state.contacts = [...state.contacts, ...nonEmptyContacts];
       }
